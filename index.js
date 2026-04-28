@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require("axios");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config(); // Load WEATHER_API_KEY from .env into process.env
 
 const app = express();
@@ -9,6 +11,39 @@ const app = express();
 app.use(cors());
 
 const PORT = process.env.PORT || 5000;
+
+// Load city list once at startup — reused across all /cities requests
+let cities = null;
+function getCities() {
+  if (!cities) {
+    cities = JSON.parse(fs.readFileSync(path.join(__dirname, "city.list.json"), "utf-8"));
+  }
+  return cities;
+}
+
+/**
+ * GET /cities?q=lon&limit=8
+ * Returns cities whose names start with the query string (case/accent-insensitive).
+ */
+app.get("/cities", (req, res) => {
+  const { q, limit } = req.query;
+  if (!q || q.trim().length < 2) {
+    return res.status(400).json({ error: "Query must be at least 2 characters" });
+  }
+  const maxResults = Math.min(parseInt(limit) || 8, 20);
+  const normalise = (str) =>
+    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const needle = normalise(q.trim());
+  const results = [];
+  for (const city of getCities()) {
+    if (results.length >= maxResults) break;
+    if (normalise(city.name).startsWith(needle)) {
+      results.push({ id: city.id, name: city.name, state: city.state, country: city.country });
+    }
+  }
+  res.json(results);
+});
+
 
 /**
  * GET /weather
