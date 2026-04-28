@@ -60,18 +60,28 @@ app.get("/cities", (req, res) => {
  *   units (optional) — defaults to "metric" here; extend as needed
  */
 app.get("/weather", async (req, res) => {
-    const { city } = req.query;
+    const { city, units } = req.query;
     const apiKey = process.env.WEATHER_API_KEY;
+
+    if (!city || !city.trim()) {
+        return res.status(400).json({ error: "City parameter is required" });
+    }
+
+    if (!apiKey) {
+        return res.status(500).json({ error: "API key not configured" });
+    }
+
+    const unitParam = units === "imperial" ? "imperial" : "metric";
 
     try {
         const response = await axios.get(
-            `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
+            `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=${unitParam}&appid=${apiKey}`
         );
         res.json(response.data);
     } catch (error) {
-        console.log(error);
-        // Return a 500 with an empty body — consider adding an error message for easier debugging
-        res.status(500).json();
+        const status = error.response?.status || 500;
+        const message = error.response?.data?.message || "Failed to fetch weather data";
+        res.status(status).json({ error: message });
     }
 });
 
