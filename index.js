@@ -35,11 +35,14 @@ app.get("/cities", (req, res) => {
     str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const needle = normalise(q.trim());
   const results = [];
+  const seen = new Set();
   for (const city of getCities()) {
     if (results.length >= maxResults) break;
-    if (normalise(city.name).startsWith(needle)) {
-      results.push({ id: city.id, name: city.name, state: city.state, country: city.country });
-    }
+    if (!normalise(city.name).startsWith(needle)) continue;
+    const key = `${normalise(city.name)}|${city.country}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push({ id: city.id, name: city.name, state: city.state, country: city.country });
   }
   res.json(results);
 });

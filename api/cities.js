@@ -51,19 +51,21 @@ module.exports = async (req, res) => {
   const needle = normalise(q.trim());
   const allCities = getCities();
   const results = [];
+  // Track seen name+country combos to skip duplicates in the source data
+  const seen = new Set();
 
-  // Single-pass linear scan — fast enough for ~200k entries on a warm function instance.
-  // Prefix match is prioritised: "lon" → "London" before "Salon-de-Provence".
   for (let i = 0; i < allCities.length && results.length < maxResults; i++) {
     const city = allCities[i];
-    if (normalise(city.name).startsWith(needle)) {
-      results.push({
-        id: city.id,
-        name: city.name,
-        state: city.state,
-        country: city.country,
-      });
-    }
+    if (!normalise(city.name).startsWith(needle)) continue;
+    const key = `${normalise(city.name)}|${city.country}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push({
+      id: city.id,
+      name: city.name,
+      state: city.state,
+      country: city.country,
+    });
   }
 
   res.json(results);
