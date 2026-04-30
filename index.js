@@ -9,6 +9,7 @@ const app = express();
 
 // Allow cross-origin requests from the React dev server (localhost:5173)
 app.use(cors());
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
@@ -84,5 +85,13 @@ app.get("/weather", async (req, res) => {
         res.status(status).json({ error: message });
     }
 });
+
+const aiHandler = require("./api/ai");
+
+/**
+ * POST /ai
+ * Proxies to the shared ai handler (same as Vercel serverless function).
+ */
+app.post("/ai", (req, res) => aiHandler(req, res));
 
 app.listen(PORT, () => console.log(`Listening to port ${PORT}`));
