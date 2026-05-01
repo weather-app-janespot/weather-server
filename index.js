@@ -86,12 +86,18 @@ app.get("/weather", async (req, res) => {
     }
 });
 
-const aiHandler = require("./api/ai");
+const aiHandler      = require("./api/ai");
+const todayHandler   = require("./api/today");
+const authHandler    = require("./api/auth");
+const profileHandler = require("./api/profile");
 
-/**
- * POST /ai
- * Proxies to the shared ai handler (same as Vercel serverless function).
- */
-app.post("/ai", (req, res) => aiHandler(req, res));
+app.post("/ai",    (req, res) => aiHandler(req, res));
+app.post("/today", (req, res) => todayHandler(req, res));
+app.get("/auth/me",        (req, res) => { req.url = "/auth/me";       authHandler(req, res); });
+app.post("/auth/register", (req, res) => { req.url = "/auth/register"; authHandler(req, res); });
+app.post("/auth/login",    (req, res) => { req.url = "/auth/login";    authHandler(req, res); });
+app.post("/auth/google",   (req, res) => { req.url = "/auth/google";   authHandler(req, res); });
+app.get("/profile",  (req, res) => profileHandler(req, res));
+app.put("/profile",  (req, res) => profileHandler(req, res));
 
 app.listen(PORT, () => console.log(`Listening to port ${PORT}`));

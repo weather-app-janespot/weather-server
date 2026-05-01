@@ -5,7 +5,7 @@ const Groq = require("groq-sdk");
  * Structured mode returns JSON summary/recommendation/bestTime.
  * Question mode returns a direct conversational answer.
  */
-function buildPrompt(weather, unit, question) {
+function buildPrompt(weather, unit, question, preferences) {
   const tempUnit = unit === "imperial" ? "°F" : "°C";
   const speedUnit = unit === "imperial" ? "mph" : "m/s";
   const { main, wind, clouds, visibility, weather: conditions, sys, rain } = weather;
@@ -25,7 +25,8 @@ ${rain ? `- Rainfall: ${rain["1h"] ?? rain["3h"]} mm (${rain["1h"] !== undefined
 `.trim();
 
   if (question) {
-    return `${context}\n\nThe user asks: "${question}"\n\nAnswer directly and concisely in 2-3 sentences.`;
+    const prefLine = preferences ? `\nUser profile: ${preferences}` : ""
+    return `${context}${prefLine}\n\nThe user asks: "${question}"\n\nAnswer directly and concisely in 2-3 sentences, taking their profile into account if relevant.`
   }
 
   return `${context}
@@ -46,7 +47,7 @@ module.exports = async (req, res) => {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { weather, unit, question } = req.body;
+  const { weather, unit, question, preferences } = req.body;
   if (!weather) return res.status(400).json({ error: "Weather data is required" });
 
   const apiKey = process.env.GROQ_API_KEY;
@@ -54,7 +55,7 @@ module.exports = async (req, res) => {
 
   try {
     const groq = new Groq({ apiKey });
-    const prompt = buildPrompt(weather, unit || "metric", question);
+    const prompt = buildPrompt(weather, unit || "metric", question, preferences);
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",

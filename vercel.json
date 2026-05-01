@@ -18,6 +18,18 @@
         {
             "src": "/ai",
             "dest": "/api/ai.js"
+        },
+        {
+            "src": "/today",
+            "dest": "/api/today.js"
+        },
+        {
+            "src": "/auth/(.*)",
+            "dest": "/api/auth.js"
+        },
+        {
+            "src": "/profile",
+            "dest": "/api/profile.js"
         }
     ]
 }
