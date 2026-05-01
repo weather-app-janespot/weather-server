@@ -24,6 +24,10 @@
             "dest": "/api/today.js"
         },
         {
+            "src": "/timeline",
+            "dest": "/api/timeline.js"
+        },
+        {
             "src": "/auth/(.*)",
             "dest": "/api/auth.js"
         },
