@@ -36,6 +36,10 @@
             "dest": "/api/activities.js"
         },
         {
+            "src": "/memory",
+            "dest": "/api/memory.js"
+        },
+        {
             "src": "/auth/(.*)",
             "dest": "/api/auth.js"
         },
