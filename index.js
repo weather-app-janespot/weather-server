@@ -89,12 +89,14 @@ app.get("/weather", async (req, res) => {
 const aiHandler       = require("./api/ai");
 const todayHandler    = require("./api/today");
 const timelineHandler = require("./api/timeline");
+const compareHandler  = require("./api/compare");
 const authHandler     = require("./api/auth");
 const profileHandler  = require("./api/profile");
 
 app.post("/ai",       (req, res) => aiHandler(req, res));
 app.post("/today",    (req, res) => todayHandler(req, res));
 app.post("/timeline", (req, res) => timelineHandler(req, res));
+app.post("/compare",  (req, res) => compareHandler(req, res));
 app.get("/auth/me",        (req, res) => { req.url = "/auth/me";       authHandler(req, res); });
 app.post("/auth/register", (req, res) => { req.url = "/auth/register"; authHandler(req, res); });
 app.post("/auth/login",    (req, res) => { req.url = "/auth/login";    authHandler(req, res); });

@@ -28,6 +28,10 @@
             "dest": "/api/timeline.js"
         },
         {
+            "src": "/compare",
+            "dest": "/api/compare.js"
+        },
+        {
             "src": "/auth/(.*)",
             "dest": "/api/auth.js"
         },
