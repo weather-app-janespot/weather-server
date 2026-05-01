@@ -32,6 +32,10 @@
             "dest": "/api/compare.js"
         },
         {
+            "src": "/activities",
+            "dest": "/api/activities.js"
+        },
+        {
             "src": "/auth/(.*)",
             "dest": "/api/auth.js"
         },
